@@ -18,14 +18,16 @@ class IBKRTradingApp(EWrapper, EClient):
         self.next_order_id = None
         self.current_price = None
         self.target_price_touched = False
+        self.connected = False
 
     def nextValidId(self, orderId: int):
         """Receives the next valid order ID"""
         super().nextValidId(orderId)
         self.next_order_id = orderId
+        self.connected = True
         print(f"Next valid order ID: {orderId}")
 
-    def error(self, reqId, errorCode, errorString, advancedOrderRejectJson=""):
+    def error(self, reqId, errorTime, errorCode, errorString, advancedOrderRejectJson=""):
         """Handle error messages"""
         print(f"Error {errorCode}: {errorString}")
 
@@ -176,10 +178,13 @@ def main():
     api_thread = threading.Thread(target=app.run, daemon=True)
     api_thread.start()
 
-    # Wait for connection
-    time.sleep(2)
+    # Wait for connection and next valid order ID
+    timeout = 10
+    start_time = time.time()
+    while not app.connected and (time.time() - start_time) < timeout:
+        time.sleep(0.5)
 
-    if app.isConnected():
+    if app.connected and app.isConnected():
         print("✅ Connected to IBKR Gateway")
 
         try:
