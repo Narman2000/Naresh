@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "financial-datasets": {
+      "command": "python",
+      "args": [
+        "/full/path/to/Naresh/financial_datasets_mcp.py"
+      ],
+      "env": {
+        "ALPHA_VANTAGE_API_KEY": "your-alpha-vantage-api-key-here"
+      }
+    }
+  }
+}

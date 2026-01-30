@@ -1,1 +1,5 @@
 ibapi>=9.81.1
+
+# MCP Server Dependencies
+mcp>=1.0.0
+httpx>=0.25.0
