@@ -7,18 +7,53 @@ Provides real-time market data, technical analysis, and trading insights from Tr
 import asyncio
 import json
 import sys
+import subprocess
 from typing import Any, Optional
 from datetime import datetime
 
+# Check and install dependencies at startup
+def check_and_install_dependencies():
+    """Check for required packages and install if missing."""
+    required_packages = {
+        'mcp': 'mcp',
+        'tradingview_ta': 'tradingview-ta',
+        'requests': 'requests'
+    }
+
+    missing_packages = []
+
+    for module_name, pip_name in required_packages.items():
+        try:
+            __import__(module_name)
+        except ImportError:
+            missing_packages.append(pip_name)
+
+    if missing_packages:
+        print(f"Installing missing packages: {', '.join(missing_packages)}", file=sys.stderr)
+        try:
+            subprocess.check_call(
+                [sys.executable, '-m', 'pip', 'install', '--quiet'] + missing_packages,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.PIPE
+            )
+            print("Packages installed successfully!", file=sys.stderr)
+        except subprocess.CalledProcessError as e:
+            print(f"Failed to install packages: {e}", file=sys.stderr)
+            print("Please run: pip install mcp tradingview-ta requests", file=sys.stderr)
+            sys.exit(1)
+
+# Check dependencies before importing
+check_and_install_dependencies()
+
+# Now import the required packages
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
 from mcp.types import (
     Tool,
     TextContent,
-    CallToolResult,
 )
 
-from tradingview_ta import TA_Handler, Interval, Exchange
+from tradingview_ta import TA_Handler, Interval
 import requests
 
 # Initialize MCP Server

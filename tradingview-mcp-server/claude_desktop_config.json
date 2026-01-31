@@ -3,9 +3,8 @@
     "tradingview": {
       "command": "python",
       "args": [
-        "C:\\path\\to\\tradingview-mcp-server\\server.py"
-      ],
-      "env": {}
+        "C:\\tradingview-mcp-server\\server.py"
+      ]
     }
   }
 }
