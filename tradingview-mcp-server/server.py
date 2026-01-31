@@ -30,16 +30,41 @@ def check_and_install_dependencies():
 
     if missing_packages:
         print(f"Installing missing packages: {', '.join(missing_packages)}", file=sys.stderr)
-        try:
-            subprocess.check_call(
-                [sys.executable, '-m', 'pip', 'install', '--quiet'] + missing_packages,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.PIPE
-            )
-            print("Packages installed successfully!", file=sys.stderr)
-        except subprocess.CalledProcessError as e:
-            print(f"Failed to install packages: {e}", file=sys.stderr)
-            print("Please run: pip install mcp tradingview-ta requests", file=sys.stderr)
+
+        # Try different pip install approaches
+        install_commands = [
+            [sys.executable, '-m', 'pip', 'install'] + missing_packages,
+            [sys.executable, '-m', 'pip', 'install', '--user'] + missing_packages,
+        ]
+
+        installed = False
+        last_error = None
+
+        for cmd in install_commands:
+            try:
+                result = subprocess.run(
+                    cmd,
+                    capture_output=True,
+                    text=True,
+                    timeout=120
+                )
+                if result.returncode == 0:
+                    print("Packages installed successfully!", file=sys.stderr)
+                    installed = True
+                    break
+                else:
+                    last_error = result.stderr
+            except Exception as e:
+                last_error = str(e)
+                continue
+
+        if not installed:
+            print(f"Auto-install failed. Error: {last_error}", file=sys.stderr)
+            print("", file=sys.stderr)
+            print("Please manually install packages:", file=sys.stderr)
+            print(f"  1. Open Command Prompt", file=sys.stderr)
+            print(f"  2. Run: {sys.executable} -m pip install mcp tradingview-ta requests", file=sys.stderr)
+            print("  3. Restart Claude Desktop", file=sys.stderr)
             sys.exit(1)
 
 # Check dependencies before importing
